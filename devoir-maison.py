@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import streamlit as st
 
-def lire_csv(filename: str) -> pd.DataFrame | None:
+def lire_csv(filename: str) -> pd.DataFrame | None :
     """Pour commencer, on commence par créer une fonction qui va lire un fichier csv et renvoyer un
     dataframe, prêt à être utilisé dans streamlit pour être affiché.
     En cas de fichier introuvable, on lève une exception nommée FileNotFoundError
@@ -19,69 +19,63 @@ def lire_csv(filename: str) -> pd.DataFrame | None:
         return None
     
 
-def charge_totale(dataframe : pd.DataFrame) -> float:
-    """Cette simple fonction sert à calculer la charge moyenne de la colonne PJM_Load_MW
-    :param dataframe: le dataframe auquel applique à la colonne PJM_Load_MW la méthode mean (ne prend pas en compte les NaN)
+def charge_totale(dataframe : pd.DataFrame) -> float :
+    """L'objectif de cette fonction est de calculer la charge totale sur toute la période de notre jeu de donnée (1998 à 2002)
+    :param dataframe: le dataframe auquel on applique à la colonne PJM_Load_MW la méthode mean (ne prend pas en compte les NaN)
     :return: retourne le résultat du calcul charge moyenne MW"""
 
     charge_totale_MW = dataframe["PJM_Load_MW"].sum()
-
     return charge_totale_MW
     
 
 def charge_moyenne(dataframe : pd.DataFrame) -> float:
-    """Cette simple fonction sert à calculer la charge moyenne de la colonne PJM_Load_MW
-    :param dataframe: le dataframe auquel applique à la colonne PJM_Load_MW la méthode mean (ne prend pas en compte les NaN)
+    """L'objectif de cette fonction est de calculer la charge moyenne sur toute la période de notre jeu de donnée (1998 à 2002)
+    :param dataframe: le dataframe auquel on applique à la colonne PJM_Load_MW la méthode mean (ne prend pas en compte les NaN)
     :return: retourne le résultat du calcul charge moyenne MW"""
 
     charge_moyenne_MW = dataframe["PJM_Load_MW"].mean()
-
     return charge_moyenne_MW
 
 
 def charge_maximale(dataframe : pd.DataFrame) -> float:
-    """Cette simple fonction sert à calculer la charge moyenne de la colonne PJM_Load_MW
-    :param dataframe: le dataframe auquel applique à la colonne PJM_Load_MW la méthode mean (ne prend pas en compte les NaN)
+    """L'objectif de cette fonction est de calculer la charge maximale, en d'autre terme le pic de charge sur toute la période de notre jeu de donnée (1998 à 2002)
+    :param dataframe: le dataframe auquel on applique à la colonne PJM_Load_MW la méthode mean (ne prend pas en compte les NaN)
     :return: retourne le résultat du calcul charge moyenne MW"""
 
     charge_maximale_MW = dataframe["PJM_Load_MW"].max()
-
     return charge_maximale_MW
 
 
 def charge_minimale(dataframe : pd.DataFrame) -> float:
-    """Cette simple fonction sert à calculer la charge moyenne de la colonne PJM_Load_MW
-    :param dataframe: le dataframe auquel applique à la colonne PJM_Load_MW la méthode mean (ne prend pas en compte les NaN)
+    """L'objectif de cette fonction est de calculer  la charge minimale, en d'autre terme, le creux de charge sur toute la période de notre jeu de donnée (1998 à 2002)
+    :param dataframe: le dataframe auquel on applique à la colonne PJM_Load_MW la méthode mean (ne prend pas en compte les NaN)
     :return: retourne le résultat du calcul charge moyenne MW"""
 
-    charge_minimale_MW = dataframe["PJM_Load_MW"].max()
-
+    charge_minimale_MW = dataframe["PJM_Load_MW"].min()
     return charge_minimale_MW
 
 
-def conversion_en_date(df : pd.DataFrame, colonnedate : str = "Datetime", format_date : str="%Y-%m-%d %H:%M:%S") -> pd.DataFrame : 
-    """Cette fonction a pour objectif de transformer la colonne datetime de notre fichier csv qui est à l'origine une chaine 
-    de caractère en date réelle pour pouvoir ensuite l'utiliser dans un graphique matplotlib
-    :param df: on prend le dataframe d'origine 
-    :param colonnedate: la colonne du csv à convertir qui est égale à datetime qui est l'intitulé de la colonne où se trouvent les dates et les heures
-    :param format_date: format de la date et des heures. %Y correspond aux années %m correspond aux mois %d correspond aux jours 
+def conversion_en_date(df : pd.DataFrame, colonnedate : str ="Datetime", format_date : str="%Y-%m-%d %H:%M:%S") -> pd.DataFrame : 
+    """Cette fonction a pour objectif de transformer la colonne datetime de notre fichier csv en type datetime pour pouvoir ensuite l'utiliser dans un graphique matplotlib
+    :param df: DataFrame d’origine contenant une colonne nommée exactement « Datetime » dont les valeurs sont des chaînes représentant une date et une heure.
+    :param colonnedate: nom de la colonne utilisée qui sera transformée en type datetime
+    :param format_date: Spécifie la structure des dates/heures dans la colonne. %Y correspond aux années %m correspond aux mois %d correspond aux jours 
     %H correspond aux heures %M correspond aux minutes
     :return: retourne le nouveau dataframe avec la colonne convertie"""
 
     df_conversion = df.copy()
-
     df_conversion[colonnedate] = pd.to_datetime(df_conversion[colonnedate],format=format_date)
-
     return df_conversion
 
 
 def tracer_vue_ensemble(df: pd.DataFrame,title: str = "Vue d'ensemble de la charge PJM en MW de 1998 à 2001", xlabel : str = "Date", ylabel : str = "MW") -> None:
-    """Fonction pour tracer le graphique matplotlib de la vue d'ensemble de la charge PJM en MW de 1998 à 2001
-    :param y: on met le MW
+    """L'objectif de cette fonction est de s'occuper de la partie traçage du graphique contenue dans une dataframe qui montre une vue d'ensemble de la charge PJM en MW de 1998 à 2001
+    :param df: le dataframe devant contenir les informations nécessaire à la construction de notre graphique (ici des dates et la charge en megaWatts)
+    :param y: on place sur cette axe y les valeurs de la colonne PJM_Load_MW
     :param title: titre du graphique 
     :param xlabel: libellé de l'axe x 
     :param ylabel: libellé de l'axe y
-    :return: ici la fonction ne retourne rien (None)"""
+    :return: La fonction ne renvoie rien, elle crée la figure Matplotlib et l’affiche dans l'application streamlit à son appel"""
 
     plt.figure(figsize=(8, 4))                 
     plt.plot(df["Datetime"], df["PJM_Load_MW"], lw=0.4)
@@ -93,12 +87,13 @@ def tracer_vue_ensemble(df: pd.DataFrame,title: str = "Vue d'ensemble de la char
 
 
 def filtrer_par_date(df : pd.DataFrame, debut, fin) -> pd.DataFrame : 
-    """L'objectif de cette fonction est de créer un nouveau dataframe qui filtre les dates en fonction des bornes de début et de fin
-    :param: on prend le dataframe d'origine
-    :param: la variable début qui contient la date à laquelle commence le datset
-    :param: la variable fin qui contient la dernière date du dataset"""
+    """L'objectif de cette fonction est de filtrer un dataFrame entre deux dates incluses et renvoie la sous‐partie triéechronologiquement.
+    :param df: on prend le dataframe d'origine auquel on va ajouter un masque permettant de dessiner les bornes correspondant à notre jeu de donnée
+    :param debut: la variable début qui contient la date à laquelle commence le datset
+    :param fin: la variable fin qui contient la dernière date du dataset
+    :return: retourne une copie du dataframe `df` restreinte à l’intervalle demandé"""
 
-    debut= pd.to_datetime(debut).date()
+    debut = pd.to_datetime(debut).date()
     fin = pd.to_datetime(fin).date()
 
     mask = (df["Datetime"].dt.date >= debut) & (df["Datetime"].dt.date <= fin)
@@ -108,10 +103,11 @@ def filtrer_par_date(df : pd.DataFrame, debut, fin) -> pd.DataFrame :
 
 
 def ajouter_colonne_saison(df : pd.DataFrame, saisons_selectionnees: list[str]) -> pd.DataFrame : 
-    """L'objectif de cette fonction est de créer un nouveau dataframe qui va venir filtrer sur une liste de saisons. Cela permettra par la suite à l'appel de cette fonction
-    de pouvoir se rendre compte des changements au niveau de la charge en fonction de la saisonnalité choisie. 
-    :param df: on prend le dataframe d'origine 
-    :return: retourne le nouveau dataframe filtré"""
+    """L'objectif de cette fonction est d'ajouter une colonne « saison » au dataFrame à partir des mois, puis de conserver uniquement les lignes dont la saison figure dans
+    saisons_selectionnees.
+    :param df: on prend le dataframe d'origine dont la colonne datetime est utilisée pour pouvoir déterminer la saison
+    :param saisons_selectionnees: correspond à la liste des saisons à choisir par l'utilisateur, la casse est importante
+    :return: retourne un nouveau dataframe enrichi d'une nouvelle colonne nommée saison et filtrée sur les saisons demandées"""
 
     saison = {12:"Hiver", 1:"Hiver", 2:"Hiver",
               3:"Printemps", 4:"Printemps", 5:"Printemps",
@@ -125,107 +121,95 @@ def ajouter_colonne_saison(df : pd.DataFrame, saisons_selectionnees: list[str]) 
     return df[mask].sort_values("Datetime")
 
 
-
-def energie_journaliere(
-    dataframe: pd.DataFrame,
-    frequence: str = "D",                     # "D", "W" ou "M"
-    colonnecharge: str = "PJM_Load_MW"
-) -> pd.DataFrame:
-    """
-    Agrège l'énergie (somme des MW) sur la fréquence demandée.
-    Retourne toujours un DataFrame avec deux colonnes :
-        • 'date'          : début de la période
-        • 'energie_MWh'   : somme des MW (≈ MWh)
-
-    frequence :
-        "D" → jour       (pas supplémentaire)
-        "W" → semaine    (dimanche comme fin de semaine)
-        "M" → mois       (fin de mois)
-    """
-    # ── 1) on part d'une copie pour ne pas toucher au DF original
-    df = dataframe.copy()
-
-    # ── 2) convertir en datetime si besoin puis créer 'date'
-    df["Datetime"] = pd.to_datetime(df["Datetime"])
-    df["date"] = df["Datetime"].dt.date       # YYYY-MM-DD (objet date)
-
-    # ── 3) somme quotidienne (toujours nécessaire)
-    daily = (
-        df.groupby("date", as_index=False)[colonnecharge]
-          .sum()
-          .rename(columns={colonnecharge: "PJM_Load_MW"})
-    )
-
-    # ── 4) si "D" on s'arrête là
-    if frequence == "D":
-        return daily
-
-    # ── 5) sinon on ré-agrège en semaine ou mois
-    daily["date"] = pd.to_datetime(daily["date"])   # pour Grouper
-    rule = "W-SUN" if frequence == "W" else "M"
-
-    agg = (
-        daily.groupby(pd.Grouper(key="date", freq=rule), as_index=False)
-             ["PJM_Load_MW"].sum()
-    )
-
-    return agg
+def detecter_pic_en_fonction_du_seuil(df : pd.DataFrame, seuil_fourni: float) -> pd.DataFrame | None :
+    """L'objectif de cette fonction est de sélectionner les pics de charge en MW dont la valeur dépasse un seuil donné. 
+    :param df: dataFrame contenant une colonne numérique PJM_Load_MW représentant la charge en mégawatts.
+    :param seuil_fourni: Valeur de seuil choisie par l'utilisateur. Toutes les lignes qui sont supérieure ou égale à ce seuil sont conservées.
+    :return: si la valeur de seuol (seuil_fourni) est inférieur ou égal à 0, on ne retourne rien car ce sont des valeurs impossible. 
+    Sinon, on renvoit le dataframe filtré, le sous ensemble limitée au charges qui sont supérieure ou égales au seuil choisi par l'utilisateur (seuil_fourni)"""
+    if seuil_fourni <= 0 :
+        st.warning("Le seuil doit être supérieur à 0...")
+        return None
+    else : 
+        pic = df[df["PJM_Load_MW"] >= seuil_fourni]
+        return pic
 
 
-def tracer_energie_journaliere(df: pd.DataFrame, col: str = "PJM_Load_MW", title: str = "Énergie journalière (Σ 24 h)", xlabel: str = "Date",ylabel: str = "MWh") -> None:
-    # 1) s’assurer que 'date' est bien un datetime64
-    df = df.copy()
-    df["date"] = pd.to_datetime(df["date"])
+def tracer_pic(df : pd.DataFrame, seuil: float, color: str = "#FF0000",s: int = 20, marker: str = "o") -> None : 
+    """L'objectif de cette fonction est d'afficher, sous forme de nuage de points, les pics de charge de la colonne PJM_Load_MW qui dépassent un seuil donné.
+    :param df: dataframe utilisé contenant les colonnes datetime et PJM_Load_MW
+    :param seuil: La valeur seuil, seuls les enregistrements de la colonne PJM_Load_MW est supérieure ou égale au seuil sont représentés. Si le seuil est inférieur ou égal à 0, la fonction se termine sans rien tracer.
+    :param color: paramètre spécifique utilisé dans matplolib scatter pour spécifier la couleur des nuages de points
+    :param s: paramètre spécifique utilisé dans matplotlib scatter qui signifie size et désigne la taille des nuages de points
+    :param marker: paramètre spécifique utilisé dans matplotlib scatter qui dessine les nuages de points. Ici o, donc les nuages de points seront des o représentés dans le graphique
+    :return: La fonction ne renvoie rien, elle trace simplement des nuages de points, ce qui la rend compatible avec un graphique déjà existant"""
 
-    # 2) largeur de figure proportionnelle au nombre de barres
-    fig_w = max(8, 0.04 * len(df))          # 0.04 → 1 pouce ≈ 2.5 cm pour 25 barres
-    plt.figure(figsize=(fig_w, 4))
+    if seuil <= 0 : 
+        return None
+    mask_pic = detecter_pic_en_fonction_du_seuil(df, seuil)
 
-    # 3) bar-chart
-    plt.bar(df["date"], df[col], width=0.8)
+    if mask_pic is not None and not mask_pic.empty : 
+        plt.scatter(mask_pic["Datetime"], mask_pic["PJM_Load_MW"], color = color, s=s , marker = marker)
 
-    # 4) titres & axes
-    plt.title(title)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.grid(axis="y", alpha=.3)
+
+def afficher_top_10(df : pd.DataFrame, n : int=10) -> pd.DataFrame : 
+    """L'objectif de cette fonction est de sélectionner les 10 premiers enregistrements présentant la charge la plus élevée.
+    :param df: dataFrame contenant la colonne PJM_Load_MW, les autres colonnes sont conservées dans le résultat.
+    :param n: nombre de lignes à extraire
+    :return: renvoie un sous ensemble du dataframe limité aux 10 lignes présentant les valeurs les plus fortes."""
+
+    top_10 = df.nlargest(n, "PJM_Load_MW")
+    return top_10
+
+
+def afficher_low_10(df : pd.DataFrame, n: int=10) -> pd.DataFrame : 
+    """L'objectif de cette fonction est de sélectionner les 10 premiers enregistrements présentant la charge la moins élevée.
+    :param df: dataFrame contenant la colonne PJM_Load_MW, les autres colonnes sont conservées dans le résultat
+    :param n: nombre de lignes à extraire
+    :return: renvoie un sous ensemble du dataframe limité aux 10 lignes présentant les valeurs les moins fortes."""
+
+    low_10 = df.nsmallest(n, "PJM_Load_MW")
+    return low_10
 
 
 
 
 
-
-
-
-st.title("Dashboard consommation électrique")
+#-----------------------------------------------------------------------------------------------------------------------------------
+#                                   Partie Affichage sur l'application streamlit
+#-----------------------------------------------------------------------------------------------------------------------------------
+st.title("Dashboard charge du réseau électrique - Pennsylvania-New Jersey-Maryland Interconnection")
+#  1. On commence par appeler notre fonction de lecture de notre de jeu de données 
 df = lire_csv("PJM_Load_hourly.csv") 
-
+#  2. Ensuite on appelle notre fonction de conversion de date pour pouvoir faire nos actions d'affichage de graphique
 df = conversion_en_date(df,colonnedate="Datetime",format_date="%Y-%m-%d %H:%M:%S")
 
 
-st.title("Principaux indicateurs")
+# Je commence le dashboard par afficher les principales statistiques du jeu de données : total, moyenne, pic et creux sur la période de notre jeu de donnée
+st.title("Principaux indicateurs sur la période (1998 - 2001)")
 total = charge_totale(df)
 moyenne = charge_moyenne(df)
 pic = charge_maximale(df)
 creux = charge_minimale(df)
 
-col1, col2= st.columns(2)
+col1, col2 = st.columns(2)
 col1.metric("⚡ Charge totale", f"{total:,.0f} MW")
 col2.metric("⚡ Charge moyenne", f"{moyenne:,.0f} MW")
 col3, col4 = st.columns(2)
-col3.metric("⚡ Pic sur la période", f"{total:,.0f} MW")
-col3.metric("⚡ Creux sur la période", f"{moyenne:,.0f} MW")
+col3.metric("⚡ Pic sur la période", f"{pic:,.0f} MW")
+col4.metric("⚡ Creux sur la période", f"{creux:,.0f} MW")
 
-
+# Pour l'intéraction avec l'utilisateur, je choisi de mettre en place une sidebar avec tous les éléments paramétrables 
 st.sidebar.title("Paramètres temporels")
+
+# Module de sélection des dates
 min_day = df["Datetime"].min().date()
 max_day = df["Datetime"].max().date()
-
 debut = st.sidebar.date_input("Début", value=min_day, min_value=min_day, max_value=max_day)
 fin   = st.sidebar.date_input("Fin", value=max_day, min_value=min_day, max_value=max_day) 
 df_date = filtrer_par_date(df, debut, fin)
 
-
+# Module de sélection des saisons
 choix = st.sidebar.multiselect(
     "Saison(s) à afficher",
     ["Hiver", "Printemps", "Eté", "Automne"],
@@ -235,36 +219,34 @@ choix = st.sidebar.multiselect(
 df_filtre = ajouter_colonne_saison(df_date, choix)
 
 
-st.title("Charge horaire PJM – vue d’ensemble")
+st.sidebar.title("Options avancées")
+# Module de sélection de sélection du seuil
+seuil_fourni = st.sidebar.number_input("Veuillez renseigner le pic recherché")
+afficher_pic = st.sidebar.toggle("Afficher les pics", value = False)
+
+
+st.title("Charge – vue d’ensemble")
+# Tracer la vue d'ensemble du graphique avec prise en compte des pics
 tracer_vue_ensemble(df_filtre,title=f"PJM — {debut} → {fin}")  
+if afficher_pic :
+    tracer_pic(df_filtre, seuil_fourni)
+
 st.pyplot(plt)  
 
-daily_energy = energie_journaliere(df_filtre)
 
-show_daily = st.sidebar.toggle("Afficher l’énergie journalière", value=False)
+# Module de sélection top 1à ou low 10 du tableau
+choix_tableau = st.sidebar.radio("Afficher :",["Tout", "Top 10 charge MW", "Low 10 charge MW"])
 
- # 1) granularité
-label_freq = st.sidebar.radio(
-        "Granularité du graphe",
-        [("Jour", "D"), ("Semaine", "W"), ("Mois", "M")],
-        horizontal=True,
-        format_func=lambda x: x[0]
-    )
-freq = label_freq[1]                   # "D", "W" ou "M"
-
-    # 2) calcule / ré-agrège en fonction du choix
-daily_energy = energie_journaliere(df_filtre, frequence=freq)
-
-    # 4) tracé toujours en barres
-st.title(f"Énergie {label_freq[0].lower()} (Σ 24 h)")
-tracer_energie_journaliere(
-        daily_energy,
-        col="PJM_Load_MW",                         # <— bon nom de colonne
-        title=f"Énergie – {label_freq[0].lower()}"
-    )
-st.pyplot(plt)
+if choix_tableau == "Top 10 charge MW" :
+    df_tableau = afficher_top_10(df_filtre, 10)
+elif choix_tableau == "Low 10 charge MW" :
+    df_tableau = afficher_low_10(df_filtre, 10)
+else :
+    df_tableau = df_filtre
 
 
-
-st.title("Jeu de données d'origine")
-st.dataframe(df, use_container_width=True)
+# Affichage du jeu de donnée qui prend en compte les paramètres choisis par l'utilisateur
+st.title("Jeu de données")
+st.dataframe(df_tableau, use_container_width=True)
+# Compteur du  nombre d'enregistrement du tableau du jeu de données affiché
+st.caption(f"{len(df_tableau):,} lignes affichées")
