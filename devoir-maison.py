@@ -3,6 +3,10 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import streamlit as st
 
+# --------------------------------------------------------------------------------------------------------------------------------
+#                                         Fonction de lecture du jeu de données 
+# --------------------------------------------------------------------------------------------------------------------------------
+
 def lire_csv(filename: str) -> pd.DataFrame | None :
     """Pour commencer, on commence par créer une fonction qui va lire un fichier csv et renvoyer un
     dataframe, prêt à être utilisé dans streamlit pour être affiché.
@@ -17,7 +21,11 @@ def lire_csv(filename: str) -> pd.DataFrame | None :
     except Exception as e:
         st.error(f"Fichier introuvable : {filename}")
         return None
-    
+
+
+# --------------------------------------------------------------------------------------------------------------------------------
+#                                         Fonction de calcul de la charge totale
+# --------------------------------------------------------------------------------------------------------------------------------  
 
 def charge_totale(dataframe : pd.DataFrame) -> float :
     """L'objectif de cette fonction est de calculer la charge totale sur toute la période de notre jeu de donnée (1998 à 2002)
@@ -26,7 +34,11 @@ def charge_totale(dataframe : pd.DataFrame) -> float :
 
     charge_totale_MW = dataframe["PJM_Load_MW"].sum()
     return charge_totale_MW
-    
+
+
+# --------------------------------------------------------------------------------------------------------------------------------
+#                                         Fonction de calcul de la charge moyenne
+# --------------------------------------------------------------------------------------------------------------------------------  
 
 def charge_moyenne(dataframe : pd.DataFrame) -> float:
     """L'objectif de cette fonction est de calculer la charge moyenne sur toute la période de notre jeu de donnée (1998 à 2002)
@@ -37,6 +49,10 @@ def charge_moyenne(dataframe : pd.DataFrame) -> float:
     return charge_moyenne_MW
 
 
+# --------------------------------------------------------------------------------------------------------------------------------
+#                                         Fonction de calcul de la charge maximale
+# -------------------------------------------------------------------------------------------------------------------------------- 
+
 def charge_maximale(dataframe : pd.DataFrame) -> float:
     """L'objectif de cette fonction est de calculer la charge maximale, en d'autre terme le pic de charge sur toute la période de notre jeu de donnée (1998 à 2002)
     :param dataframe: le dataframe auquel on applique à la colonne PJM_Load_MW la méthode mean (ne prend pas en compte les NaN)
@@ -46,6 +62,10 @@ def charge_maximale(dataframe : pd.DataFrame) -> float:
     return charge_maximale_MW
 
 
+# --------------------------------------------------------------------------------------------------------------------------------
+#                                         Fonction de calcul de la charge minimale
+# -------------------------------------------------------------------------------------------------------------------------------- 
+
 def charge_minimale(dataframe : pd.DataFrame) -> float:
     """L'objectif de cette fonction est de calculer  la charge minimale, en d'autre terme, le creux de charge sur toute la période de notre jeu de donnée (1998 à 2002)
     :param dataframe: le dataframe auquel on applique à la colonne PJM_Load_MW la méthode mean (ne prend pas en compte les NaN)
@@ -54,6 +74,10 @@ def charge_minimale(dataframe : pd.DataFrame) -> float:
     charge_minimale_MW = dataframe["PJM_Load_MW"].min()
     return charge_minimale_MW
 
+
+# --------------------------------------------------------------------------------------------------------------------------------
+#                                         Fonction de conversion en type Datetime
+# -------------------------------------------------------------------------------------------------------------------------------- 
 
 def conversion_en_date(df : pd.DataFrame, colonnedate : str ="Datetime", format_date : str="%Y-%m-%d %H:%M:%S") -> pd.DataFrame : 
     """Cette fonction a pour objectif de transformer la colonne datetime de notre fichier csv en type datetime pour pouvoir ensuite l'utiliser dans un graphique matplotlib
@@ -67,6 +91,23 @@ def conversion_en_date(df : pd.DataFrame, colonnedate : str ="Datetime", format_
     df_conversion[colonnedate] = pd.to_datetime(df_conversion[colonnedate],format=format_date)
     return df_conversion
 
+
+# --------------------------------------------------------------------------------------------------------------------------------
+#                               Fonction de conversion pour préparation de la date en semaine
+# -------------------------------------------------------------------------------------------------------------------------------- 
+
+def preparation_date_en_semaine(df: pd.DataFrame) -> pd.DataFrame : 
+    """L'objectif de la fonction est de convertir df["Datetime"] au type datetime64 et de créer une nouvelle colonne intitulé jour_semaine qui regroupera les jours de la semaine
+    :param df: DataFrame comprenant obligatoirement Datetime convertible en type datetime
+     :return: Le même DataFrame **avec deux garanties : Datetime est bien au type datetime et une colonne jour_semaine a été ajoutée. """
+    df["Datetime"] = pd.to_datetime(df["Datetime"])
+    df["jour_semaine"] = df["Datetime"].dt.day_name()
+    return df
+
+
+# --------------------------------------------------------------------------------------------------------------------------------
+#                               Fonction pour tracer le premier graphique - vue d'ensemble
+# -------------------------------------------------------------------------------------------------------------------------------- 
 
 def tracer_vue_ensemble(df: pd.DataFrame,title: str = "Vue d'ensemble de la charge PJM en MW de 1998 à 2001", xlabel : str = "Date", ylabel : str = "MW") -> None:
     """L'objectif de cette fonction est de s'occuper de la partie traçage du graphique contenue dans une dataframe qui montre une vue d'ensemble de la charge PJM en MW de 1998 à 2001
@@ -83,8 +124,54 @@ def tracer_vue_ensemble(df: pd.DataFrame,title: str = "Vue d'ensemble de la char
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.grid(alpha=.3)
-    plt.tight_layout()
+ 
 
+# --------------------------------------------------------------------------------------------------------------------------------
+#                     Fonction pour tracer le deuxième graphique - distribution de la charge électrique
+# -------------------------------------------------------------------------------------------------------------------------------- 
+
+def tracer_distibution_charge(df: pd.DataFrame, title : str = "Distribution de la charge électrique horaire (MW)", xlabel : str = "charge en MW", ylabel : str = "Fréquence") -> None : 
+    """L'objectif de cette fonction est de s'occuper de la partie traçage du graphique qui montre la distribution de la charge horaire sur la période donnée (possibilité de jouer avec les dates sur streamlit)
+    :param df: le dataframe qui contient toutes les informations nécessaire à la construction de notre graphique ici PJM_Load_MW
+    :param title: titre du graphique 
+    :param xlabel: libellé de l'axe x
+    :param ylabel: libellé de l'axe y 
+    :return: La fonction ne renvoie rien, elle créée la figure matplotlib et l'affiche dans l'application streamlit à son appel"""
+
+    plt.figure(figsize=(8, 4)) 
+    plt.hist(df["PJM_Load_MW"], bins=80)
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+
+
+# --------------------------------------------------------------------------------------------------------------------------------
+#                     Fonction pour tracer le troisième graphique - charge électrique par semaine
+# -------------------------------------------------------------------------------------------------------------------------------- 
+
+def tracer_charge_par_semaine(df : pd.DataFrame, title : str = "Charge électrique par semaine (MW)", xlabel : str = "Jour de la semaine", ylabel : str = "charge en MW") -> None : 
+     """L'objectif de cette fonction est de s'occuper de la partie traçage du graphique de la charge électrique par semaine 
+     :param df: le dataframe qui contient les informations nécessaire à la construction de notre graphique
+     :param title: titre du graphique 
+     :param xlabel: libellé de l'axe x 
+     :param ylabel: title de l'axe y 
+     :return: la fonction ne renvoie rien, elle créée la figure matplotlib et l'affiche dans l'application streamlit à son appel"""
+     
+     #On créée une liste de jour de la semaine pour l'afficher ensuite dans le graphique
+     jour_semaine = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"]
+     #Ensuite on veut la moyenne mais par jour (de la liste de la semaine), il faut faire un groupby
+     moy_par_jour = df.groupby("jour_semaine")["PJM_Load_MW"].mean()
+     
+     plt.figure(figsize=(8, 4))
+     plt.bar(jour_semaine,moy_par_jour, color="tab:blue")
+     plt.title(title)
+     plt.xlabel(xlabel)
+     plt.ylabel(ylabel)
+
+
+# --------------------------------------------------------------------------------------------------------------------------------
+#                                                   Fonction pour filtrer par date
+# -------------------------------------------------------------------------------------------------------------------------------- 
 
 def filtrer_par_date(df : pd.DataFrame, debut, fin) -> pd.DataFrame : 
     """L'objectif de cette fonction est de filtrer un dataFrame entre deux dates incluses et renvoie la sous‐partie triéechronologiquement.
@@ -101,6 +188,10 @@ def filtrer_par_date(df : pd.DataFrame, debut, fin) -> pd.DataFrame :
 
     return selection
 
+
+# --------------------------------------------------------------------------------------------------------------------------------
+#                             Fonction pour ajouter une colonne saison au dataframe
+# -------------------------------------------------------------------------------------------------------------------------------- 
 
 def ajouter_colonne_saison(df : pd.DataFrame, saisons_selectionnees: list[str]) -> pd.DataFrame : 
     """L'objectif de cette fonction est d'ajouter une colonne « saison » au dataFrame à partir des mois, puis de conserver uniquement les lignes dont la saison figure dans
@@ -121,6 +212,10 @@ def ajouter_colonne_saison(df : pd.DataFrame, saisons_selectionnees: list[str]) 
     return df[mask].sort_values("Datetime")
 
 
+# --------------------------------------------------------------------------------------------------------------------------------
+#                             Fonction détecter un pic en fonction d'un seuil donné
+# -------------------------------------------------------------------------------------------------------------------------------- 
+
 def detecter_pic_en_fonction_du_seuil(df : pd.DataFrame, seuil_fourni: float) -> pd.DataFrame | None :
     """L'objectif de cette fonction est de sélectionner les pics de charge en MW dont la valeur dépasse un seuil donné. 
     :param df: dataFrame contenant une colonne numérique PJM_Load_MW représentant la charge en mégawatts.
@@ -134,6 +229,10 @@ def detecter_pic_en_fonction_du_seuil(df : pd.DataFrame, seuil_fourni: float) ->
         pic = df[df["PJM_Load_MW"] >= seuil_fourni]
         return pic
 
+
+# --------------------------------------------------------------------------------------------------------------------------------
+#                             Fonction tracer les pics dépassant un seuil donné
+# -------------------------------------------------------------------------------------------------------------------------------- 
 
 def tracer_pic(df : pd.DataFrame, seuil: float, color: str = "#FF0000",s: int = 20, marker: str = "o") -> None : 
     """L'objectif de cette fonction est d'afficher, sous forme de nuage de points, les pics de charge de la colonne PJM_Load_MW qui dépassent un seuil donné.
@@ -152,6 +251,10 @@ def tracer_pic(df : pd.DataFrame, seuil: float, color: str = "#FF0000",s: int = 
         plt.scatter(mask_pic["Datetime"], mask_pic["PJM_Load_MW"], color = color, s=s , marker = marker)
 
 
+# --------------------------------------------------------------------------------------------------------------------------------
+#                             Fonction pour afficher le top 10 sur le dataset
+# -------------------------------------------------------------------------------------------------------------------------------- 
+
 def afficher_top_10(df : pd.DataFrame, n : int=10) -> pd.DataFrame : 
     """L'objectif de cette fonction est de sélectionner les 10 premiers enregistrements présentant la charge la plus élevée.
     :param df: dataFrame contenant la colonne PJM_Load_MW, les autres colonnes sont conservées dans le résultat.
@@ -161,6 +264,9 @@ def afficher_top_10(df : pd.DataFrame, n : int=10) -> pd.DataFrame :
     top_10 = df.nlargest(n, "PJM_Load_MW")
     return top_10
 
+# --------------------------------------------------------------------------------------------------------------------------------
+#                             Fonction pour afficher le low 10 sur le dataset
+# -------------------------------------------------------------------------------------------------------------------------------- 
 
 def afficher_low_10(df : pd.DataFrame, n: int=10) -> pd.DataFrame : 
     """L'objectif de cette fonction est de sélectionner les 10 premiers enregistrements présentant la charge la moins élevée.
@@ -183,6 +289,8 @@ st.title("Dashboard charge du réseau électrique - Pennsylvania-New Jersey-Mary
 df = lire_csv("PJM_Load_hourly.csv") 
 #  2. Ensuite on appelle notre fonction de conversion de date pour pouvoir faire nos actions d'affichage de graphique
 df = conversion_en_date(df,colonnedate="Datetime",format_date="%Y-%m-%d %H:%M:%S")
+df = preparation_date_en_semaine(df)
+
 
 
 # Je commence le dashboard par afficher les principales statistiques du jeu de données : total, moyenne, pic et creux sur la période de notre jeu de donnée
@@ -226,6 +334,7 @@ afficher_pic = st.sidebar.toggle("Afficher les pics", value = False)
 
 
 st.title("Charge – vue d’ensemble")
+st.markdown("Ce graphique représente une vue d'ensemble de l'évolution de la charge électrique s'étalant sur toute la durée du jeu de données, donc de 1998 à 2001. Vous pouvez interargir avec le graphique avec la sidebar à gauche de l'écran et choisir une de changer la durée, de jouer avec les saisons, ou encore de définir un seuil de pic.")
 # Tracer la vue d'ensemble du graphique avec prise en compte des pics
 tracer_vue_ensemble(df_filtre,title=f"PJM — {debut} → {fin}")  
 if afficher_pic :
@@ -233,6 +342,17 @@ if afficher_pic :
 
 st.pyplot(plt)  
 
+#Tracer le graphique sur la distribution de charge 
+st.title("Distribution de la charge électrique horaire (MW)")
+st.markdown("Ce graphique représente une distribution de la charge électrique horaire. En d'autres termes, ce graphique est capable de montrer la charge électrique horaire normale (celle qu'on retrouve le plus souvent), les pics de production, les creux... C'est un bon complément au premier graphique. Comme pour le premier, il vous est possible d'intérargir avec le graphique avec les élements interactifs de la sidebar. ")
+tracer_distibution_charge(df_filtre)
+st.pyplot(plt)
+
+#Tracer le graphique sur la charge électrique sur une semaine
+st.title("Charge électrique moyenne MW sur une semaine")
+st.markdown("Ce graphique, avec un affichage à la semaine, donc plus restreint, permet de voir quel est le jour de la semaine où l'on consomme le plus, les jours où l'on consomme le moins et donc potentiellement d'adapter la production en conséquence.")
+tracer_charge_par_semaine(df_filtre)
+st.pyplot(plt)
 
 # Module de sélection top 1à ou low 10 du tableau
 choix_tableau = st.sidebar.radio("Afficher :",["Tout", "Top 10 charge MW", "Low 10 charge MW"])
@@ -247,6 +367,7 @@ else :
 
 # Affichage du jeu de donnée qui prend en compte les paramètres choisis par l'utilisateur
 st.title("Jeu de données")
+st.markdown("Affichage du jeu de données qui a été utilisé dans le cadre de l'exercice. Ce jeu de donnée a été quelque peu modié avec la possibilité de voir les saisons correspondantes. Il est également possible de faire des petites action comme : 1.afficher le top 10 des charges les plus importantes, 2. Afficher le low 10 des charges les moins importante. ")
 st.dataframe(df_tableau, use_container_width=True)
 # Compteur du  nombre d'enregistrement du tableau du jeu de données affiché
 st.caption(f"{len(df_tableau):,} lignes affichées")
