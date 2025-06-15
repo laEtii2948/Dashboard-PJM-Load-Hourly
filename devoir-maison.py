@@ -115,7 +115,7 @@ def tracer_vue_ensemble(dataframe_pour_vue_ensemble: pd.DataFrame,title: str = "
     :param dataframe_pour_vue_ensemble: le dataframe devant contenir les informations nécessaire à la construction de notre graphique (ici des dates et la charge en megaWatts)
     :param y: on place sur cette axe y les valeurs de la colonne PJM_Load_MW
     :param title: titre du graphique 
-    :param xlabel: libellé de l'axe x, à savoir date
+    :param xlabel: libellé de l'axe x, à savoir la date
     :param ylabel: libellé de l'axe y, à savoir la charge en MW
     :return: La fonction ne renvoie rien, elle crée la figure Matplotlib et l’affiche dans l'application streamlit à son appel"""
 
