@@ -270,7 +270,7 @@ page_icon=":python:",
 layout="wide",
 initial_sidebar_state="expanded",
 )
-st.title("Devoir maison - Master MIMO - 2025")
+
 
 st.title("Dashboard charge du réseau électrique - Pennsylvania-New Jersey-Maryland Interconnection")
 #  Je commence par appeler notre fonction de lecture de notre de jeu de données 
